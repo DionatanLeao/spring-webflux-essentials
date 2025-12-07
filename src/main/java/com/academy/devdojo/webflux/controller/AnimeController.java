@@ -1,7 +1,7 @@
 package com.academy.devdojo.webflux.controller;
 
 import com.academy.devdojo.webflux.domain.Anime;
-import com.academy.devdojo.webflux.repository.AnimeRepository;
+import com.academy.devdojo.webflux.service.AnimeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,11 +14,11 @@ import reactor.core.publisher.Flux;
 @RequestMapping("/animes")
 @Slf4j
 public class AnimeController {
-    private final AnimeRepository animeRepository;
+    private final AnimeService animeService;
 
     @GetMapping
     public Flux<Anime> listAll() {
-        return animeRepository.findAll();
+        return animeService.findAll();
     }
 
 }
