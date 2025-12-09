@@ -20,8 +20,7 @@ public class AnimeService {
 
     public Mono<Anime> findById(Integer id) {
         return animeRepository.findById(id)
-                .switchIfEmpty(monoResponseStatusNotFoundException())
-                .log();
+                .switchIfEmpty(monoResponseStatusNotFoundException());
     }
 
     public <T> Mono<T> monoResponseStatusNotFoundException() {
