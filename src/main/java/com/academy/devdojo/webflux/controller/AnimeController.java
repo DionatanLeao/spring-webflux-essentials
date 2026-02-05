@@ -27,7 +27,7 @@ public class AnimeController {
     private final AnimeService animeService;
 
     @GetMapping
-    public Flux<Anime> listAll() {
+    public Flux<Anime> findAll() {
         return animeService.findAll();
     }
 
