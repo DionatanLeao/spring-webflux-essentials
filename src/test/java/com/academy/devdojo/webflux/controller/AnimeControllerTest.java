@@ -45,14 +45,14 @@ class AnimeControllerTest {
         BDDMockito.when(animeService.findById(ArgumentMatchers.anyInt()))
                 .thenReturn(Mono.just(anime));
 
-//        BDDMockito.when(animeRepository.save(AnimeCreator.createAnimeToBeSaved()))
-//                .thenReturn(Mono.just(anime));
-//
-//        BDDMockito.when(animeRepository.save(AnimeCreator.createValidAnime()))
-//                .thenReturn(Mono.empty());
-//
-//        BDDMockito.when(animeRepository.delete(ArgumentMatchers.any(Anime.class)))
-//                .thenReturn(Mono.empty());
+        BDDMockito.when(animeService.save(AnimeCreator.createAnimeToBeSaved()))
+                .thenReturn(Mono.just(anime));
+
+        BDDMockito.when(animeService.update(AnimeCreator.createValidAnime()))
+                .thenReturn(Mono.empty());
+
+        BDDMockito.when(animeService.delete(ArgumentMatchers.anyInt()))
+                .thenReturn(Mono.empty());
     }
 
     @Test
@@ -86,6 +86,32 @@ class AnimeControllerTest {
         StepVerifier.create(animeController.findById(1))
                 .expectSubscription()
                 .expectNext(anime)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("save creates an anime when successful")
+    public void save_Creates_WhenSuccessful() {
+        Anime animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
+        StepVerifier.create(animeService.save(animeToBeSaved))
+                .expectSubscription()
+                .expectNext(anime)
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("update save updated anime and returns empty mono when successful")
+    public void update_SaveUpdatedAnime_WhenSuccessful() {
+        StepVerifier.create(animeController.update(1, AnimeCreator.createValidAnime()))
+                .expectSubscription()
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("delete removes the anime when successful")
+    public void delete_RemoveAnime_WhenSuccessful() {
+        StepVerifier.create(animeService.delete(1))
+                .expectSubscription()
                 .verifyComplete();
     }
 
