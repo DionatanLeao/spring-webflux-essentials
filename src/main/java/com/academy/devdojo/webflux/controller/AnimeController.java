@@ -33,6 +33,7 @@ public class AnimeController {
     }
 
     @GetMapping(path = "{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Mono<Anime> findById(@PathVariable Integer id) {
         return animeService.findById(id);
     }
