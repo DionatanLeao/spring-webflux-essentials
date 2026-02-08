@@ -134,7 +134,7 @@ class AnimeServiceTest {
 
     @Test
     @DisplayName("delete removes the anime when successful")
-    public void delete_RemoveAnime_WhenSuccessful() {
+    public void delete_RemovesAnime_WhenSuccessful() {
         StepVerifier.create(animeService.delete(1))
                 .expectSubscription()
                 .verifyComplete();
