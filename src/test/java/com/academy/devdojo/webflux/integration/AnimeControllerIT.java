@@ -3,6 +3,7 @@ package com.academy.devdojo.webflux.integration;
 import com.academy.devdojo.webflux.domain.Anime;
 import com.academy.devdojo.webflux.repository.AnimeRepository;
 import com.academy.devdojo.webflux.util.AnimeCreator;
+import com.academy.devdojo.webflux.util.WebTestClientUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,11 +34,13 @@ import java.util.concurrent.TimeUnit;
 @SpringBootTest
 @AutoConfigureWebTestClient
 public class AnimeControllerIT {
+    @Autowired
+    private WebTestClientUtil webTestClientUtil;
     @MockBean
     private AnimeRepository animeRepository;
-
-    @Autowired
-    private WebTestClient testClient;
+    private WebTestClient testClientUser;
+    private WebTestClient testClientAdmin;
+    private WebTestClient testClientInvalid;
 
     private final Anime anime = AnimeCreator.createValidAnime();
 
@@ -50,6 +53,10 @@ public class AnimeControllerIT {
 
     @BeforeEach
     public void setUp() {
+        WebTestClient testClientUser = webTestClientUtil.authenticateClient("david", "devdojo");
+        WebTestClient testClientAdmin = webTestClientUtil.authenticateClient("william", "devdojo");
+        WebTestClient testClientInvalid = webTestClientUtil.authenticateClient("x", "x");
+
         BDDMockito.when(animeRepository.findAll())
                 .thenReturn(Flux.just(anime));
 
@@ -89,7 +96,7 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("findAll returns a flux of anime")
     public void findAll_ReturnFluxOfAnime_WhenSuccessful() {
-        testClient
+        testClientUser
                 .get()
                 .uri("/animes")
                 .exchange()
@@ -102,7 +109,7 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("findAll returns a flux of anime")
     public void findAll_Flavor2_ReturnFluxOfAnime_WhenSuccessful() {
-        testClient
+        testClientUser
                 .get()
                 .uri("/animes")
                 .exchange()
@@ -115,7 +122,7 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("findById returns Mono with anime its exists")
     public void findById_ReturnMonoAnime_WhenSuccessful() {
-        testClient
+        testClientUser
                 .get()
                 .uri("/animes/{id}", 1)
                 .exchange()
@@ -130,7 +137,7 @@ public class AnimeControllerIT {
         BDDMockito.when(animeRepository.findById(ArgumentMatchers.anyInt()))
                 .thenReturn(Mono.empty());
 
-        testClient
+        testClientUser
                 .get()
                 .uri("/animes/{id}", 1)
                 .exchange()
@@ -144,7 +151,7 @@ public class AnimeControllerIT {
     @DisplayName("save creates an anime when successful")
     public void save_Creates_WhenSuccessful() {
         Anime animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
-        testClient
+        testClientUser
                 .post()
                 .uri("/animes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -160,7 +167,7 @@ public class AnimeControllerIT {
     public void saveBatch_Creates_WhenSuccessful() {
         Anime animeToBeSaved = AnimeCreator.createAnimeToBeSaved();
 
-        testClient
+        testClientUser
                 .post()
                 .uri("/animes/batch")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -176,7 +183,7 @@ public class AnimeControllerIT {
     @DisplayName("save returns mono error with bad request when name is empty")
     public void save_ReturnsError_WhenNameIsEmpty() {
         Anime animeToBeSaved = AnimeCreator.createAnimeToBeSaved().withName("");
-        testClient
+        testClientUser
                 .post()
                 .uri("/animes")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -196,7 +203,7 @@ public class AnimeControllerIT {
                         AnimeCreator.createAnimeToBeSaved())))
                 .thenReturn(Flux.just(anime, anime.withName("")));
 
-        testClient
+        testClientUser
                 .post()
                 .uri("/animes/batch")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -210,7 +217,7 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("update save updated anime and returns empty mono when successful")
     public void update_SaveUpdatedAnime_WhenSuccessful() {
-        testClient
+        testClientUser
                 .put()
                 .uri("/animes/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -225,7 +232,7 @@ public class AnimeControllerIT {
         BDDMockito.when(animeRepository.findById(ArgumentMatchers.anyInt()))
                 .thenReturn(Mono.empty());
 
-        testClient
+        testClientUser
                 .put()
                 .uri("/animes/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -240,7 +247,7 @@ public class AnimeControllerIT {
     @Test
     @DisplayName("delete removes the anime when successful")
     public void delete_RemovesAnime_WhenSuccessful() {
-        testClient
+        testClientUser
                 .delete()
                 .uri("/animes/{id}", 1)
                 .exchange()
@@ -253,7 +260,7 @@ public class AnimeControllerIT {
         BDDMockito.when(animeRepository.findById(ArgumentMatchers.anyInt()))
                 .thenReturn(Mono.empty());
 
-        testClient
+        testClientUser
                 .delete()
                 .uri("/animes/{id}", 1)
                 .exchange()
